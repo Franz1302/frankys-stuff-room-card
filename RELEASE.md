@@ -4,7 +4,7 @@ Date: 2026-10-14
 
 ## Status
 
-**Function test passed. Release candidate approved for publication.**
+**Function test passed. v0.3.0 approved for GitHub publication.**
 
 ## Verified in Home Assistant
 
@@ -28,9 +28,12 @@ Required repository/release files:
 - `README.md`
 - `INSTALL.md`
 - `CHANGELOG.md`
-- `hacs.json`
 - `LICENSE`
 - `THIRD_PARTY_NOTICES.md`
 - `LICENSES/GPL-3.0.txt`
 
 The release JavaScript intentionally contains embedded image data and is therefore several megabytes in size.
+
+## HACS
+
+HACS publication is intentionally deferred. The GitHub release is published and maintained independently first.
