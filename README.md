@@ -87,3 +87,10 @@ v0.3.0 was tested on 2026-10-14 in Home Assistant using a separate release-test 
 ## Version
 
 **Frankys_Stuff Room Card v0.3.0**
+
+
+## Support
+
+If you like Frankys_Stuff Room Card and want to support further development:
+
+**Ko-fi:** https://ko-fi.com/Frankys_Stuff
