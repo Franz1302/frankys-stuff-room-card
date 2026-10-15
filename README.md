@@ -1,5 +1,9 @@
 # Frankys_Stuff Room Card v0.3.0
 
+<p align="center">
+  <img src="images/roomcard-tablet-portrait.png" alt="Frankys_Stuff Room Card on a portrait tablet" width="650">
+</p>
+
 A self-contained Home Assistant Lovelace room card for wall displays and tablets.
 
 ## Features
