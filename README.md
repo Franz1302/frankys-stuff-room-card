@@ -23,6 +23,12 @@ A self-contained Home Assistant Lovelace room card for wall displays and tablets
 - Simple visual editor; advanced overrides are grouped under **Experteneinstellungen**
 - No runtime dependency on Frankys_Stuff Climate Card, Frankys_Stuff Weather Card, Enhanced Shutter Card or local image folders
 
+## Display orientation
+
+Frankys_Stuff Room Card is designed primarily for **tablets and wall displays used in portrait orientation**. The layout is optimized to present room status, lighting, covers, climate controls and weather in one vertically arranged view.
+
+Landscape mode can work depending on the available screen size, but **portrait mode is the intended and recommended layout**.
+
 ## Card type
 
 ```yaml
