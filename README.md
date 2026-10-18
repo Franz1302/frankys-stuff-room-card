@@ -35,6 +35,13 @@ Landscape mode can work depending on the available screen size, but **portrait m
 type: custom:frankys-stuff-room-card
 ```
 
+## HACS installation as a custom repository
+
+1. In Home Assistant, open **HACS → ⋮ → Custom repositories**.
+2. Add `https://github.com/Franz1302/frankys-stuff-room-card` and select **Dashboard** as the category.
+3. Open the repository in HACS and install the Room Card.
+4. Reload the dashboard.
+
 ## Manual installation
 
 1. Copy `frankys-stuff-room-card.js` to:
