@@ -1,6 +1,15 @@
 # Frankys_Stuff Room Card v0.3.0
 
 <p align="center">
+  <a href="https://ko-fi.com/Frankys_Stuff">
+    <img src="https://img.shields.io/badge/THANKS%20FOR%20THE%20COFFEE!-Support%20Frankys__Stuff-FF5E5B?style=for-the-badge&logo=ko-fi&logoColor=white" alt="Thanks for the coffee! Support Frankys_Stuff on Ko-fi">
+  </a>
+</p>
+
+[![HACS Custom Repository](https://img.shields.io/badge/HACS-Custom%20Repository-00AEEF?style=flat-square)](https://hacs.xyz/docs/faq/custom_repositories/)
+
+
+<p align="center">
   <img src="images/roomcard-tablet-portrait.png" alt="Frankys_Stuff Room Card on a portrait tablet" width="650">
 </p>
 
@@ -36,6 +45,8 @@ type: custom:frankys-stuff-room-card
 ```
 
 ## HACS installation as a custom repository
+
+**Status (2026-10-18):** Successfully installed via HACS as a custom **Dashboard** repository in Home Assistant. The card rendered correctly, and its visual editor opened successfully. This project is **not listed in the official HACS catalog**; add it as a custom repository.
 
 1. In Home Assistant, open **HACS → ⋮ → Custom repositories**.
 2. Add `https://github.com/Franz1302/frankys-stuff-room-card` and select **Dashboard** as the category.
