@@ -129,8 +129,8 @@ class FrankysRoomClimateInternal extends HTMLElement {
   }
   _t(key) {
     const table = {
-      de:{actual:"Aktuell",mode:"Modus",off:"AUS",auto:"AUTO",manual:"MANUELL",target:"Soll-Temperatur",sending:"BEFEHL WIRD GESENDET",unavailable:"NICHT VERFÜGBAR",ready:"BEREIT",active:"AKTIV",scheduleSetup:"HEIZPLAN ÜBER DIE UHR EINRICHTEN",noBlock:"KEIN GÜLTIGER ZEITBLOCK",schedule:"Heizplan öffnen",until:"BIS",plan:"HEIZPLAN",planIntro:"Jeder Beginn gilt bis zum nächsten Eintrag, auch über Mitternacht. Temperaturen: 5–30 °C · Schritt 0,5 °C.",weekday:"Mo–Fr",weekend:"Sa–So",start:"Beginn",temperature:"Temperatur °C",addStart:"+ Beginn",loading:"Heizplan wird geladen / gespeichert …",admin:"Bearbeiten und Speichern erfordert ein HA-Administratorkonto.",cancel:"ABBRECHEN",save:"SPEICHERN",remove:"Eintrag entfernen"},
-      en:{actual:"Current",mode:"Mode",off:"OFF",auto:"AUTO",manual:"MANUAL",target:"Target Temp.",sending:"SENDING COMMAND",unavailable:"UNAVAILABLE",ready:"READY",active:"ACTIVE",scheduleSetup:"SET SCHEDULE VIA CLOCK",noBlock:"NO VALID TIME BLOCK",schedule:"Open schedule",until:"UNTIL",plan:"SCHEDULE",planIntro:"Each start time remains active until the next entry, including across midnight. Temperatures: 5–30 °C · Step 0.5 °C.",weekday:"Mon–Fri",weekend:"Sat–Sun",start:"Start",temperature:"Temperature °C",addStart:"+ Start",loading:"Schedule is loading / saving …",admin:"Editing and saving requires a Home Assistant administrator account.",cancel:"CANCEL",save:"SAVE",remove:"Remove entry"}
+      de:{actual:"Aktuell",mode:"Modus",off:"AUS",auto:"AUTO",manual:"MANUELL",target:"Soll-Temperatur",sending:"BEFEHL WIRD GESENDET",unavailable:"NICHT VERFÜGBAR",ready:"BEREIT",active:"AKTIV",scheduleSetup:"HEIZPLAN ÜBER DIE UHR EINRICHTEN",noBlock:"KEIN GÜLTIGER ZEITBLOCK",schedule:"Heizplan öffnen",until:"BIS",plan:"HEIZPLAN",planIntro:"Jeder Beginn gilt bis zum nächsten Eintrag, auch über Mitternacht. Temperaturen: 5–30 °C · Schritt 0,5 °C.",weekday:"Mo–Fr",weekend:"Sa–So",start:"Beginn",temperature:"Temperatur °C",addStart:"+ Beginn",loading:"Heizplan wird geladen / gespeichert …",admin:"Bearbeiten und Speichern erfordert ein HA-Administratorkonto.",cancel:"ABBRECHEN",save:"SPEICHERN",remove:"Eintrag entfernen",noAutoMode:"AUTO NICHT UNTERSTÜTZT"},
+      en:{actual:"Current",mode:"Mode",off:"OFF",auto:"AUTO",manual:"MANUAL",target:"Target Temp.",sending:"SENDING COMMAND",unavailable:"UNAVAILABLE",ready:"READY",active:"ACTIVE",scheduleSetup:"SET SCHEDULE VIA CLOCK",noBlock:"NO VALID TIME BLOCK",schedule:"Open schedule",until:"UNTIL",plan:"SCHEDULE",planIntro:"Each start time remains active until the next entry, including across midnight. Temperatures: 5–30 °C · Step 0.5 °C.",weekday:"Mon–Fri",weekend:"Sat–Sun",start:"Start",temperature:"Temperature °C",addStart:"+ Start",loading:"Schedule is loading / saving …",admin:"Editing and saving requires a Home Assistant administrator account.",cancel:"CANCEL",save:"SAVE",remove:"Remove entry",noAutoMode:"AUTO NOT SUPPORTED"}
     };
     const d = table[this._lang()] || table.en;
     return d[key] || key;
@@ -436,6 +436,17 @@ class FrankysRoomClimateInternal extends HTMLElement {
     }
   }
 
+  _roomAutoMode(control) {
+    const entity = this._state(control);
+    const modes = entity && entity.attributes ? entity.attributes.hvac_modes : null;
+    const preferred = this._config.auto_hvac_mode === "auto" ? "auto" : "heat";
+    const fallback = preferred === "auto" ? "heat" : "auto";
+    if (!Array.isArray(modes) || !modes.length) return preferred;
+    if (modes.indexOf(preferred) !== -1) return preferred;
+    if (modes.indexOf(fallback) !== -1) return fallback;
+    return null;
+  }
+
   async _setMode(mode) {
     const profile = this._profile();
 
@@ -505,9 +516,15 @@ class FrankysRoomClimateInternal extends HTMLElement {
       if (mode === "AUS") {
         await this._call("climate", "turn_off", { entity_id: control });
       } else if (mode === "AUTO") {
+        const hvacMode = this._roomAutoMode(control);
+        if (!hvacMode) {
+          this._error = this._t("noAutoMode");
+          this._render();
+          return;
+        }
         await this._call("climate", "set_hvac_mode", {
           entity_id: control,
-          hvac_mode: "heat"
+          hvac_mode: hvacMode
         });
       }
       return;
@@ -1902,9 +1919,29 @@ class StableEditor extends HTMLElement {
     this._error=document.createElement('p');this._error.className='error';this._error.setAttribute('role','alert');this.shadowRoot.appendChild(this._error);this._values();this._options();
   }
   _values(){var self=this;Object.keys(this._controls).forEach(function(k){var x=self._controls[k];if(self.shadowRoot.activeElement===x.input)return;if(x.field.kind==='check')x.input.checked=!!self._config[k];else if(x.field.kind!=='entity')x.input.value=self._config[k]==null?'':self._config[k];});}
-  _options(){var self=this,states=this._hass&&this._hass.states||{};Object.keys(this._controls).forEach(function(k){var x=self._controls[k],f=x.field,input=x.input;if(f.kind!=='entity'||self.shadowRoot.activeElement===input)return;var selected=self._config[k]||'',list=[['','— nicht gesetzt —']];Object.keys(states).sort().forEach(function(id){var s=states[id];if(f.domains.indexOf(domain(id))===-1)return;if(id!==selected&&!self._showAll&&!matchesDevice(copy(s,{entity_id:id}),f))return;list.push([id,(attrs(s).friendly_name||id)+' · '+id+(!available(s)?' ('+stateLabel(s)+')':'')]);});if(selected&&!list.some(function(v){return v[0]===selected;}))list.push([selected,selected+' (nicht gefunden / prüfen)']);var signature=JSON.stringify(list);if(input._signature!==signature){input.textContent='';list.forEach(function(v){var op=document.createElement('option');op.value=v[0];op.textContent=v[1];input.appendChild(op);});input._signature=signature;}input.value=selected;});}
+  _options(){var self=this,states=this._hass&&this._hass.states||{};Object.keys(this._controls).forEach(function(k){var x=self._controls[k],f=x.field,input=x.input;
+    if(k==='auto_hvac_mode'){
+      if(self.shadowRoot.activeElement===input)return;
+      var raw=attrs(self._state(self._config.climate_entity)).hvac_modes;
+      var known=Array.isArray(raw)&&raw.length>0;
+      var selected=self._config.auto_hvac_mode==='auto'?'auto':'heat';
+      var options=['heat','auto'].filter(function(m){return !known||raw.indexOf(m)!==-1;});
+      if(options.indexOf(selected)===-1)options.push(selected);
+      var signature=JSON.stringify([options,selected,langOf(self)]);
+      if(input._signature!==signature){
+        input.textContent='';
+        options.forEach(function(m){
+          var op=document.createElement('option');op.value=m;
+          op.textContent=(m==='heat'?(langOf(self)==='de'?'heat – Heizbetrieb (Standard)':'heat – heating (default)'):(langOf(self)==='de'?'auto – Gerätezeitprogramm':'auto – device schedule'))+(known&&raw.indexOf(m)===-1?(langOf(self)==='de'?' (nicht unterstützt)':' (unsupported)'):'');
+          input.appendChild(op);
+        });
+        input._signature=signature;
+      }
+      input.value=selected;return;
+    }
+    if(f.kind!=='entity'||self.shadowRoot.activeElement===input)return;var selected=self._config[k]||'',list=[['','— nicht gesetzt —']];Object.keys(states).sort().forEach(function(id){var s=states[id];if(f.domains.indexOf(domain(id))===-1)return;if(id!==selected&&!self._showAll&&!matchesDevice(copy(s,{entity_id:id}),f))return;list.push([id,(attrs(s).friendly_name||id)+' · '+id+(!available(s)?' ('+stateLabel(s)+')':'')]);});if(selected&&!list.some(function(v){return v[0]===selected;}))list.push([selected,selected+' (nicht gefunden / prüfen)']);var signature=JSON.stringify(list);if(input._signature!==signature){input.textContent='';list.forEach(function(v){var op=document.createElement('option');op.value=v[0];op.textContent=v[1];input.appendChild(op);});input._signature=signature;}input.value=selected;});}
   _change(f,input){if(f.kind==='number'&&input.validity&&input.validity.badInput){this._error.textContent=f.label+': gültige Zahl erforderlich.';return;}var value=f.kind==='check'?input.checked:f.kind==='number'?(input.value===''?null:num(input.value)):input.value,next=copy(this._config);next[f.key]=value;
-    try{next=validate(next,DEFAULTS,SCHEMA);this._error.textContent='';}catch(e){this._error.textContent=e.message;return;}this._config=next;this.dispatchEvent(new CustomEvent('config-changed',{detail:{config:copy(next)},bubbles:true,composed:true}));}
+    try{next=validate(next,DEFAULTS,SCHEMA);this._error.textContent='';}catch(e){this._error.textContent=e.message;return;}this._config=next;if(f.key==='climate_entity')this._options();this.dispatchEvent(new CustomEvent('config-changed',{detail:{config:copy(next)},bubbles:true,composed:true}));}
 }
 
 class BaseCard extends HTMLElement {
@@ -1950,14 +1987,14 @@ function register(Card,name,description){
 
 var TAG='frankys-stuff-room-card';
 var EMBEDDED_HOME_ICON='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjggMTI4IiByb2xlPSJpbWciIGFyaWEtbGFiZWw9IkhvbWUiPgogIDx0aXRsZT5Ib21lPC90aXRsZT4KICA8ZyBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPgoKICAgIDxwYXRoIGQ9Ik0yMCA1OEw2NCAyMkwxMDggNTgiIHN0cm9rZT0iIzMyOTdmZiIgc3Ryb2tlLXdpZHRoPSI3Ii8+CiAgICA8cGF0aCBkPSJNMzAgNTNWMTA4SDk4VjUzIiBzdHJva2U9IiNlYWY0ZmYiIHN0cm9rZS13aWR0aD0iNiIvPgogICAgPHBhdGggZD0iTTUyIDEwOFY3Nkg3NlYxMDgiIHN0cm9rZT0iIzMyOTdmZiIgc3Ryb2tlLXdpZHRoPSI2Ii8+CiAgICA8Y2lyY2xlIGN4PSI2NCIgY3k9IjQ1IiByPSI1IiBmaWxsPSIjZmY3YjI0IiBzdHJva2U9Im5vbmUiLz4KCiAgPC9nPgo8L3N2Zz4=';
-var DEFAULTS={name:'RAUM',icon:'mdi:home',header_image:'',language:'auto',temperature_entity:'',humidity_entity:'',contact_entity:'',cover_entity:'',cover_battery_entity:'',cover_name:'',cover_2_entity:'',cover_2_battery_entity:'',cover_2_name:'',cover_3_entity:'',cover_3_battery_entity:'',cover_3_name:'',cover_4_entity:'',cover_4_battery_entity:'',cover_4_name:'',light_1:'',light_1_name:'LICHT 1',light_1_image:'',light_2:'',light_2_name:'LICHT 2',light_2_image:'',light_3:'',light_3_name:'LICHT 3',light_3_image:'',all_lights_image:'',climate_entity:'',target_entity:'',mode_entity:'',heater_entity:'',heating_status_entity:'',off_script:'',manual_script:'',schedule_entity:'',min_temp:null,max_temp:null,step:null,display_battery_entity:'',display_battery_state_entity:'',charger_entity:'',charger_power_entity:'',weather_enabled:true,weather_entity:'',outside_temperature_entity:'',outside_humidity_entity:'',sun_entity:'sun.sun',weather_model:'best_match',weather_source:'WETTER',weather_refresh_minutes:30};
+var DEFAULTS={name:'RAUM',icon:'mdi:home',header_image:'',language:'auto',temperature_entity:'',humidity_entity:'',contact_entity:'',cover_entity:'',cover_battery_entity:'',cover_name:'',cover_2_entity:'',cover_2_battery_entity:'',cover_2_name:'',cover_3_entity:'',cover_3_battery_entity:'',cover_3_name:'',cover_4_entity:'',cover_4_battery_entity:'',cover_4_name:'',light_1:'',light_1_name:'LICHT 1',light_1_image:'',light_2:'',light_2_name:'LICHT 2',light_2_image:'',light_3:'',light_3_name:'LICHT 3',light_3_image:'',all_lights_image:'',climate_entity:'',auto_hvac_mode:'heat',target_entity:'',mode_entity:'',heater_entity:'',heating_status_entity:'',off_script:'',manual_script:'',schedule_entity:'',min_temp:null,max_temp:null,step:null,display_battery_entity:'',display_battery_state_entity:'',charger_entity:'',charger_power_entity:'',weather_enabled:true,weather_entity:'',outside_temperature_entity:'',outside_humidity_entity:'',sun_entity:'sun.sun',weather_model:'best_match',weather_source:'WETTER',weather_refresh_minutes:30};
 var lightFields=[];for(var lightIndex=1;lightIndex<=3;lightIndex++)lightFields=lightFields.concat([entity('Licht '+lightIndex,'light_'+lightIndex,['light']),field('Name Licht '+lightIndex,'light_'+lightIndex+'_name'),field('Bild Licht '+lightIndex+' (lokal oder HTTPS)','light_'+lightIndex+'_image')]);
 var SCHEMA=[{label:'Raum',fields:[field('Raumname','name'),field('Icon (mdi:...)','icon'),field('Header-Bild (lokal oder HTTPS)','header_image'),field('Sprache','language','select',{options:['auto','de','en']})]},{label:'Raumstatus',fields:[entity('Temperatur','temperature_entity',['sensor'],'temperature'),entity('Luftfeuchte','humidity_entity',['sensor'],'humidity'),entity('Fenster / Tür','contact_entity',['binary_sensor'],'contact')]},{label:'Lichter',fields:lightFields.concat([field('Bild Alle Lichter (lokal oder HTTPS)','all_lights_image')])},{label:'Rollo',fields:[
   entity('Rollo 1','cover_entity',['cover']),field('Name Rollo 1 (optional)','cover_name'),entity('Akku Rollo 1 (optional)','cover_battery_entity',['sensor'],'battery'),
   entity('Rollo 2 (optional)','cover_2_entity',['cover']),field('Name Rollo 2 (optional)','cover_2_name'),entity('Akku Rollo 2 (optional)','cover_2_battery_entity',['sensor'],'battery'),
   entity('Rollo 3 (optional)','cover_3_entity',['cover']),field('Name Rollo 3 (optional)','cover_3_name'),entity('Akku Rollo 3 (optional)','cover_3_battery_entity',['sensor'],'battery'),
   entity('Rollo 4 (optional)','cover_4_entity',['cover']),field('Name Rollo 4 (optional)','cover_4_name'),entity('Akku Rollo 4 (optional)','cover_4_battery_entity',['sensor'],'battery')
-]},{label:'Klima / Heizung',fields:[entity('Climate','climate_entity',['climate']),entity('Sollwert-Helper (optional)','target_entity',['input_number','number']),entity('Modus-Helper (optional)','mode_entity',['input_select','select']),entity('Heizgerät / Switch (optional für MANUELL)','heater_entity',['switch']),entity('Heizstatus / Binärsensor (optional, nur Anzeige)','heating_status_entity',['binary_sensor']),entity('AUS-Script (optional)','off_script',['script']),entity('MANUELL-Script (optional)','manual_script',['script']),entity('Heizplan (optional)','schedule_entity',['schedule']),field('Min. Temperatur (leer = Gerät)','min_temp','number'),field('Max. Temperatur (leer = Gerät)','max_temp','number'),field('Schrittweite (leer = Gerät)','step','number',{min:0.001})]},{label:'Display / Ladegerät',fields:[entity('Display Akku','display_battery_entity',['sensor'],'battery'),entity('Display Akkustatus','display_battery_state_entity',['sensor','binary_sensor']),entity('Ladegerät (Anzeige)','charger_entity',['switch']),entity('Ladeleistung','charger_power_entity',['sensor'],'power')]},{label:'Wetter',fields:weatherFields(true)}];
+]},{label:'Klima / Heizung',fields:[entity('Climate','climate_entity',['climate']),field('AUTO-Betriebsmodus (ohne Modus-Helper)','auto_hvac_mode','select',{options:['heat','auto']}),entity('Sollwert-Helper (optional)','target_entity',['input_number','number']),entity('Modus-Helper (optional)','mode_entity',['input_select','select']),entity('Heizgerät / Switch (optional für MANUELL)','heater_entity',['switch']),entity('Heizstatus / Binärsensor (optional, nur Anzeige)','heating_status_entity',['binary_sensor']),entity('AUS-Script (optional)','off_script',['script']),entity('MANUELL-Script (optional)','manual_script',['script']),entity('Heizplan (optional)','schedule_entity',['schedule']),field('Min. Temperatur (leer = Gerät)','min_temp','number'),field('Max. Temperatur (leer = Gerät)','max_temp','number'),field('Schrittweite (leer = Gerät)','step','number',{min:0.001})]},{label:'Display / Ladegerät',fields:[entity('Display Akku','display_battery_entity',['sensor'],'battery'),entity('Display Akkustatus','display_battery_state_entity',['sensor','binary_sensor']),entity('Ladegerät (Anzeige)','charger_entity',['switch']),entity('Ladeleistung','charger_power_entity',['sensor'],'power')]},{label:'Wetter',fields:weatherFields(true)}];
 function metric(label,value){return '<div class="metric"><div class="eyebrow">'+esc(label)+'</div><strong>'+value+'</strong></div>';}
 function button(label,action,value,disabled,active){return '<button data-action="'+esc(action)+'" data-value="'+esc(value||'')+'" data-focus="'+esc(action+'|'+(value||''))+'"'+(disabled?' disabled':'')+(active!=null?' aria-pressed="'+(active?'true':'false')+'"':'')+' class="'+(active?'active':'')+'">'+esc(label)+'</button>';}
 function sensorText(s){return available(s)?(num(s.state)!==null?measure(s.state,unit(s)):esc(s.state)):esc(stateLabel(s));}
@@ -2164,6 +2201,7 @@ class FrankysStuffRoomCard extends BaseCard {
       temperature_entity:c.temperature_entity||'',
       target_entity:c.target_entity||'',
       mode_entity:c.mode_entity||'',
+      auto_hvac_mode:c.auto_hvac_mode||'heat',
       heater_entity:c.heater_entity||'',
       heating_status_entity:c.heating_status_entity||'',
       off_script:c.off_script||'',
