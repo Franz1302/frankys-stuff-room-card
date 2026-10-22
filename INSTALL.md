@@ -10,7 +10,7 @@ to:
 
 Register this dashboard resource:
 
-`/local/frankys-stuff/room-card/frankys-stuff-room-card.js?v=0.3.0`
+`/local/frankys-stuff/room-card/frankys-stuff-room-card.js?v=0.3.1`
 
 Resource type:
 
