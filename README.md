@@ -89,6 +89,14 @@ The entity IDs above are examples only. Select your own Home Assistant entities 
 
 For normal thermostat use, selecting the room's `climate` entity is sufficient.
 
+### AUTO mode selection (planned next release)
+
+In the RoomCard editor under **Klima / Heizung → AUTO-Betriebsmodus (ohne Modus-Helper)**, the default remains `heat`. If a thermostat supports `auto` (for example, Homematic IP with its own schedule), select `auto` instead. The editor reads `hvac_modes` and offers only supported modes, keeping an already configured but unsupported choice visible. If the selected mode is unsupported, a supported alternative is used; if neither `heat` nor `auto` is available, no invalid service call is sent.
+
+This option affects the RoomCard's embedded climate controller **only when no separate `mode_entity` helper is configured**. It does not change the separately released Climate Card. Existing installations remain on `heat` by default. Device schedules may override manually chosen target temperatures.
+
+For regression checks run `node tests/roomcard-auto-mode.test.js`. Live Homematic hardware and iOS 12.5 tests remain pending.
+
 The schedule control looks for a Home Assistant schedule linked to the configured climate entity. If none exists, the card can create one when the schedule is saved.
 
 Separate target/mode helpers, scripts, `schedule_entity`, heating-status sensor, temperature limits and step size are optional settings under **Experteneinstellungen**.
