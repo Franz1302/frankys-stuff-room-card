@@ -1,4 +1,6 @@
-# Frankys_Stuff Room Card v0.3.0
+# Frankys_Stuff Room Card v0.3.1
+
+### ☕ [THANKS FOR THE COFFEE! — Support Frankys_Stuff on Ko-fi](https://ko-fi.com/Frankys_Stuff)
 
 <p align="center">
   <a href="https://ko-fi.com/Frankys_Stuff">
@@ -63,7 +65,7 @@ type: custom:frankys-stuff-room-card
 
 3. Add:
 
-   `/local/frankys-stuff/room-card/frankys-stuff-room-card.js?v=0.3.0`
+   `/local/frankys-stuff/room-card/frankys-stuff-room-card.js?v=0.3.1`
 
 4. Select **JavaScript Module**.
 
@@ -89,7 +91,7 @@ The entity IDs above are examples only. Select your own Home Assistant entities 
 
 For normal thermostat use, selecting the room's `climate` entity is sufficient.
 
-### AUTO mode selection (planned next release)
+### AUTO mode selection (v0.3.1)
 
 In the RoomCard editor under **Klima / Heizung → AUTO-Betriebsmodus (ohne Modus-Helper)**, the default remains `heat`. If a thermostat supports `auto` (for example, Homematic IP with its own schedule), select `auto` instead. The editor reads `hvac_modes` and offers only supported modes, keeping an already configured but unsupported choice visible. If the selected mode is unsupported, a supported alternative is used; if neither `heat` nor `auto` is available, no invalid service call is sent.
 
@@ -122,7 +124,7 @@ v0.3.0 was tested on 2026-10-14 in Home Assistant using a separate release-test 
 
 ## Version
 
-**Frankys_Stuff Room Card v0.3.0**
+**Frankys_Stuff Room Card v0.3.1**
 
 
 ## Support
