@@ -72,7 +72,7 @@ const cases = [
       this._controls = {auto_hvac_mode:{field:{kind:"select"},input:this._control}};
       this.shadowRoot = {activeElement:null};
     }
-    _state(id) { return this._hass.states[id]; }
+    // Do not add _state(): the real visual editor has no _state method.
     ${source.slice(editorStart, editorEnd)}
   }`)(
     x => x && x.attributes || {},
