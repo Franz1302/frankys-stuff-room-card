@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.3.2 — 2026-10-25
+
+- Fixed `self._state is not a function` when editing the Room Card in Home Assistant's visual editor.
+- The editor now reads the selected climate entity directly from `hass.states`; this also handles missing entities while configuring a new card.
+- Strengthened the regression tests to reproduce this error without accidentally defining the missing editor method.
+- No changes to card controls, thermostat regulation, covers, light controls, or design.
+
+
 ## 0.3.0 — 2026-10-14
 
 ### Added

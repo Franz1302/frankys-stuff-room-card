@@ -1922,7 +1922,7 @@ class StableEditor extends HTMLElement {
   _options(){var self=this,states=this._hass&&this._hass.states||{};Object.keys(this._controls).forEach(function(k){var x=self._controls[k],f=x.field,input=x.input;
     if(k==='auto_hvac_mode'){
       if(self.shadowRoot.activeElement===input)return;
-      var raw=attrs(self._state(self._config.climate_entity)).hvac_modes;
+      var raw=attrs(states[self._config.climate_entity]).hvac_modes;
       var known=Array.isArray(raw)&&raw.length>0;
       var selected=self._config.auto_hvac_mode==='auto'?'auto':'heat';
       var options=['heat','auto'].filter(function(m){return !known||raw.indexOf(m)!==-1;});
@@ -2215,6 +2215,6 @@ class FrankysStuffRoomCard extends BaseCard {
     child.hass=this._hass;
   }
 }
-register(FrankysStuffRoomCard,'Frankys_Stuff Room Card','Standalone room control card for Home Assistant · v0.3.0');
+register(FrankysStuffRoomCard,'Frankys_Stuff Room Card','Standalone room control card for Home Assistant · v0.3.2');
 
 })();
