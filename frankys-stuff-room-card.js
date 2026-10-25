@@ -2215,6 +2215,6 @@ class FrankysStuffRoomCard extends BaseCard {
     child.hass=this._hass;
   }
 }
-register(FrankysStuffRoomCard,'Frankys_Stuff Room Card','Standalone room control card for Home Assistant · v0.3.0');
+register(FrankysStuffRoomCard,'Frankys_Stuff Room Card','Standalone room control card for Home Assistant · v0.3.2');
 
 })();
