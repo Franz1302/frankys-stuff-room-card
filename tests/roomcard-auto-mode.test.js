@@ -91,5 +91,14 @@ const cases = [
     assert.equal(editor._control.options.map(o => o.value).join(","), expected);
     count++;
   }
+  // Entity choices must also load without HA state data or a selected climate entity.
+  const absent = new Editor(undefined, "heat");
+  absent._config.climate_entity = "climate.unknown";
+  absent._options();
+  assert.equal(absent._control.options.map(o => o.value).join(","), "heat,auto");
+  absent._hass = null;
+  absent._options();
+  assert.equal(absent._control.options.map(o => o.value).join(","), "heat,auto");
+  count += 2;
   console.log(count + " RoomCard AUTO-mode regression cases passed");
 })().catch(error => { console.error(error); process.exitCode = 1; });
